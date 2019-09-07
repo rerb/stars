@@ -317,8 +317,16 @@ i {
     margin: 0;
 }
 
+.list-group-item.active{
+	background-color: #00589a;
+}
 
-.accordion {
+.quartile-div {
+    padding: 2em;
+}
+
+
+/* .accordion {
   margin-bottom: 18px;
 }
 
@@ -341,4 +349,4 @@ i {
 
 .accordion-toggle {
   cursor: pointer;
-}
+} */
