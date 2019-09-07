@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from sorl.thumbnail import ImageField
+
 from stars.apps.submissions.models import SubmissionSet
 
 
