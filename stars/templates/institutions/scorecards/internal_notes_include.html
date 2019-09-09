@@ -7,7 +7,10 @@
     		{% include "institutions/scorecards/credit_tabs.html" %}
     	{% endwith %}
 
+        <div class="col-md-10">
+            <br>
+            <h2>Internal Notes</h2>
+            {{ credit_submission.internal_notes|urlizetrunc:85|linebreaks }}
+        </div>
 
-        <h2>Internal Notes</h2>
-        {{ credit_submission.internal_notes|urlizetrunc:85|linebreaks }}
 {% endblock %}

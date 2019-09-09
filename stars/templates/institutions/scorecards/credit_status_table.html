@@ -21,8 +21,8 @@
 
       {% if user.is_staff %}
         <a href="{{ credit_submission.get_flag_url }}"
-           class='btn btn-warning btn-mini'>
-          <i class='icon-flag icon-white'></i>
+           class='btn btn-warning icon-btn'>
+          <i class='fa fa-flag icon-no-margin'></i>
         </a>
       {% endif %}
 
@@ -32,16 +32,17 @@
              rel="popover"
              id="flag_{{ f.id }}"
              data-content="{{ f.description }}"
-             data-original-title="Flagged Field">
-            <i class='icon-flag'> </i></a>
+             data-original-title="Flagged Field"
+             class="icon-no-margin">
+            <i class='fa fa-flag icon-no-margin'> </i></a>
           <script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
         {% endfor %}
       {% endif %}
 
       {% if user.is_staff %}
         <a href="{{ credit_submission.get_status_update_url }}?next={{ request.get_full_path  }}"
-           class="btn btn-warning btn-mini">
-          <i class="icon-refresh icon-white"></i>
+           class="btn btn-warning icon-btn">
+          <i class="fa fa-refresh icon-no-margin"></i>
         </a>
       {% endif %}
     </td>

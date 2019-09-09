@@ -3,11 +3,10 @@
 {% block title %}{{ credit_submission.credit }} | {{ block.super }}{% endblock %}
 
 {% block crumb-tab %}
-    <li>
+    <li class="breadcrumb-item">
     	<a href='/institutions/{{ submissionset.institution.slug }}/report/'>{{ submissionset.institution }}</a>
-    	<span class="divider">/</span>
     </li>
-    <li>
+    <li class="breadcrumb-item">
     	<a href='{{ submissionset.get_scorecard_url }}'>
 	    	{% if submissionset.was_submitted %}
 	    		{{ submissionset.date_submitted }}
@@ -15,9 +14,8 @@
 	    		{{ submissionset.creditset }}
 	    	{% endif %}
     	</a>
-    	<span class="divider">/</span>
     </li>
-	<li>
+	<li class="breadcrumb-item">
     	{{ credit_submission.credit }}
     </li>
 {% endblock %}

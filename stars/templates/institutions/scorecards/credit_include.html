@@ -40,7 +40,7 @@
     {{ credit_submission.credit }}
   </h1>
 
-  <table class='table table-bordered table-condensed table-striped'>
+  <table class='table'>
     {% include 'institutions/scorecards/credit_status_table.html' %}
   </table>
 
@@ -100,9 +100,4 @@
 
 {% block center_column_footer %}
   {% include 'institutions/scorecards/footer.html' %}
-  <!--
-    CID: {{ credit_submission.credit.id }}
-    CUS: {{ credit_submission.id }}
-    SS: {{ submissionset.id }}
-  -->
 {% endblock %}
