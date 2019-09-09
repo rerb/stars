@@ -7,7 +7,7 @@
     {% endblock %}
     {% load help %}
     {% load submit_tags %}
-      <table id="institution_list" class='table'>
+      <table id="institution_list" class='table table-striped'>
         <tr>
           <th></th>
           {% for col in sort_columns %}
@@ -22,7 +22,7 @@
           {% endfor %}
         </tr>
         {% for i in object_list %}
-          <tr class="{% cycle 'even' 'odd' %}">
+          <tr>
             <td>{{ forloop.counter }}</td>
             <td style='text-align: left'>
                 <a href='{{ i.get_masquerade_url }}'>{{ i }}</a>

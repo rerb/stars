@@ -5,7 +5,7 @@
 {% block crumbs %}
 	<ul class="breadcrumb">
 	  <li>
-	    <a href='/tool/admin/'>Administer Site</a> <span class="divider">/</span>
+	    <a href='/tool/admin/'>Administer Site</a>
 	  </li>
 	  <li>
 	    Institutions
@@ -13,9 +13,11 @@
 	</ul>
 {% endblock %}
 
+
 {% block tabs %}
 	{% with active='institutions'%}{% include "tool/admin/tabs.html"%}{% endwith %}
 {% endblock %}
+
 
 {% block admin_content %}
     {% block institution_content %}{% endblock %}

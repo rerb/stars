@@ -3,57 +3,66 @@
 {% block title %}{{ institution }} | {{ block.super }}{% endblock %}
 
 {% block crumb-tab %}
-	<li>{{ institution }}</li>
+	<li class="breadcrumb-item">{{ institution }}</li>
 {% endblock %}
 
 {% block content %}
-    <div class='row inner20'>
-        <h1>{{ institution }} Reports</h1>
-        <h4>
-            {{ institution.get_location_string }}
-        </h4>
-        <br/>
-        <div class='inner20'>
-        <table class='table'>
-        	<thead>
-            <tr>
-                <th>STARS Version</th>
-                <th>Submission Date</th>
-                <th>Rating</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for ss in submission_sets %}
+
+    <div class='row justify-content-center'>
+        <div class="col-12 text-center">
+            <h1>{{ institution }} Reports</h1>
+        </div>
+        <div class="col-12 text-center">
+            <h4>
+                {{ institution.get_location_string }}
+            </h4>
+        </div>
+            <div class="col-6">
+            <table class='table'>
+            	<thead>
                 <tr>
-                    <td>
-                        {{ ss.creditset }}
-                    </td>
-                    <td>
-                        <a href='{{ ss.get_scorecard_url }}'>
-                            {% if ss.date_submitted %}
-                                {{ ss.date_submitted }}
-                            {% else %}
-                                Pending Submission
-                            {% endif %}
-                        </a>
-                    </td>
-                    <td>
-                        {% if ss.status == 'r' %}
-                          {% if not ss.expired %}
-                            {{ ss.rating }}
-                          {% else %}
-                            Expired
-                          {% endif %}
-                        {% else %}
-                            Not Rated
-                        {% endif %}
-                    </td>
+                    <th>STARS Version</th>
+                    <th>Submission Date</th>
+                    <th>Rating</th>
                 </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    </div>
+                </thead>
+                <tbody>
+                {% for ss in submission_sets %}
+                    <tr>
+                        <td>
+                            {{ ss.creditset }}
+                        </td>
+                        <td>
+                            <a href='{{ ss.get_scorecard_url }}'>
+                                {% if ss.date_submitted %}
+                                    {{ ss.date_submitted }}
+                                {% else %}
+                                    Pending Submission
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td>
+                            {% if ss.status == 'r' %}
+                              {% if not ss.expired %}
+                                {{ ss.rating }}
+                              {% else %}
+                                Expired
+                              {% endif %}
+                            {% else %}
+                                Not Rated
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        </div>
+
+
+
+
 
     <script>
         jQuery( function($) {

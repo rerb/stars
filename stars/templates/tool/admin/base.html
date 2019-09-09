@@ -12,11 +12,10 @@
 
 {% block submenu_class %}class='sm_admin'{% endblock %}
 
+
 {% block tool_content %}
         {% block tabs %}{% endblock %}
-        <div class='tabContent'>
-            {% block admin_content %}{% endblock %}
-        </div>
+        {% block admin_content %}{% endblock %}
 {% endblock %}
 
 {% block tool_menu %}

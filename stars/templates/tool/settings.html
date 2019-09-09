@@ -9,28 +9,29 @@
 {% block header %}Settings{% endblock %}
 
 {% block tool_menu %}
-  {% with active_menu='resources'%}
+  {% with active_menu='settings'%}
     {% include "tool/menu.html" %}
   {% endwith %}
 {% endblock %}
 
 {% block tool_content %}
-  <form method="post" action="." class="form-horizontal">
+<div class="col-md-10">
+    <form method="post" action="." class="form-horizontal">
 
-    {{ form|bootstrap }}
+      {{ form|bootstrap }}
 
-    <div class="form-actions">
-      <button type="submit"
-              id="submit_button"
-              class="btn btn-primary">
-        Save
-      </button>
-      <button type="button"
-              class="btn"
-              onclick="document.location='{% url 'tool:tool-summary' institution.slug %}'">
-        Cancel
-      </button>
-    </div>
-
-  </form>
+      <div class="form-actions">
+        <button type="submit"
+                id="submit_button"
+                class="btn btn-primary">
+          Save
+        </button>
+        <button type="button"
+                class="btn"
+                onclick="document.location='{% url 'tool:tool-summary' institution.slug %}'">
+          Cancel
+        </button>
+      </div>
+    </form>
+</div> 
 {% endblock %}

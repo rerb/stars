@@ -28,13 +28,12 @@
 {% endblock %}
 
 {% block crumb-tab %}
-  <li>
+  <li class="breadcrumb-item">
     <a href='/institutions/{{ submissionset.institution.slug }}/report/'>
       {{ submissionset.institution }}
     </a>
-    <span class="divider">/</span>
   </li>
-  <li>
+  <li class="breadcrumb-item">
     {% if submissionset.was_submitted %}
       {{ submissionset.date_submitted }}
     {% else %}

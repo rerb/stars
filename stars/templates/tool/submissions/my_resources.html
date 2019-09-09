@@ -17,9 +17,6 @@
     {% autoescape off %}
         <h1>
             {{ node.title }}
-            {% if user.is_staff %}
-                <a href="/_ad/cms/newarticle/83/" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
-            {% endif %}
         </h1>
         <div style='text-align: center;padding: 10px;'>
             {% if institution.current_rating %}
@@ -51,18 +48,20 @@
             	{% endthumbnail %}{% endthumbnail %}
             {% endif %}{% endif %}
         </div>
-        {% if institution.rated_submission %}
-            <h2>
-                Scorecard
-            </h2>
-            <p>Your <a href='{{ institution.rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
-        {% endif %}
-        <h2>Template Press Release</h2>
-        {% if institution.get_submissions %}
-        	{% display_block_content 'template_press_release_rated' user %}
-        {% else %}
-        	{% display_block_content 'template_press_release_unrated' user %}
-        {% endif %}
-        {{ node.content }}
+        <div class="col-md-10">
+            {% if institution.rated_submission %}
+                <h2>
+                    Scorecard
+                </h2>
+                <p>Your <a href='{{ institution.rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
+            {% endif %}
+            <h2>Template Press Release</h2>
+            {% if institution.get_submissions %}
+            	{% display_block_content 'template_press_release_rated' user %}
+            {% else %}
+            	{% display_block_content 'template_press_release_unrated' user %}
+            {% endif %}
+            {{ node.content }}
+        </div>    
     {% endautoescape %}
 {% endblock %}

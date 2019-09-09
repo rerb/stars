@@ -35,7 +35,9 @@
 
 {% block tool_content %}
     <h1>{% block h1 %}Credit Editor{% endblock %}</h1>
-    {% block editor_content %}{% endblock %}
+    <div class="col-10">
+        {% block editor_content %}{% endblock %}
+    </div>
 {% endblock %}
 
 {% block extra_footer %}

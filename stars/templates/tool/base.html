@@ -12,18 +12,19 @@
 {% endblock %}
 
 {% block crumbs %}
-  <ul class="breadcrumb">
-    <li>
-      <a href="/">Home</a> <span class="divider">/</span>
-    </li>
-    <li>
-      <a href="{% url 'tool:tool-landing-page' %}">
-        Reporting
-      </a>
-      <span class="divider">/</span>
-    </li>
-    {% block crumbs-tool %}{% endblock %}
-  </ul>
+  <nav class="crumbs" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'tool:tool-landing-page' %}">
+          Reporting
+        </a>
+      </li>
+      {% block crumbs-tool %}{% endblock %}
+    </ol>
+  </nav>
 {% endblock %}
 
 {% block content %}

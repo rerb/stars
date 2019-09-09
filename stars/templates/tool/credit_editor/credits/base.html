@@ -9,39 +9,27 @@
 
 {% block editor_content %}
     <ul class="nav nav-tabs">
-        <li id="credit-summary-tab"
-            {% if active_tab == "credit-summary" %}
-                class="active"
-            {% endif %}
-            >
-            <a href="{{ credit.get_edit_url }}">
+        <li class="nav-item" id="credit-summary-tab">
+            <a href="{{ credit.get_edit_url }}"
+                class="nav-link {% if active_tab == 'credit-summary' %}active{% endif %}">
                 Credit Summary
             </a>
         </li>
-        <li id="reporting-fields-tab"
-            {% if active_tab == "reporting-fields" %}
-                class="active"
-            {% endif %}
-            >
-            <a href="{{ credit.get_edit_url }}fields/">
+        <li class="nav-item" id="reporting-fields-tab">
+            <a href="{{ credit.get_edit_url }}fields/"
+                class="nav-link {% if active_tab == 'reporting-fields' %}active{% endif %}">
                 Reporting Fields
             </a>
         </li>
-        <li id="applicability-tab"
-            {% if active_tab == "applicability" %}
-                class="active"
-            {% endif %}
-            >
-            <a href="{{ credit.get_edit_url }}applicability/">
+        <li class="nav-item" id="applicability-tab">
+            <a href="{{ credit.get_edit_url }}applicability/"
+                class="nav-link {% if active_tab == 'applicability' %}active{% endif %}">
                 Applicability
             </a>
         </li>
-        <li id="formula-and-validation-tab"
-            {% if active_tab == "formula-and-validation" %}
-                class="active"
-            {% endif %}
-            >
-            <a href="{{ credit.get_edit_url }}formula/">
+        <li class="nav-item" id="formula-and-validation-tab">
+            <a href="{{ credit.get_edit_url }}formula/"
+                class="nav-link {% if active_tab == 'formula-and-validation' %}active{% endif %}">
                 Formula &amp; Validation
             </a>
         </li>
