@@ -197,7 +197,6 @@ ul.nav-pills li.active a:hover {
 }
 .dashboard-chart {
   height: 250px;
-  border: 1px solid #dddddd;
   margin-bottom: 12px;
   margin-top: 12px;
 }

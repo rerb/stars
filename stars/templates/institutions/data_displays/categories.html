@@ -1,12 +1,16 @@
 {% extends 'institutions/data_displays/base.html' %}
 
+{% load content %}
 {% load compress %}
 
+
 {% block crumb-tab %}
-        <li>Category Display</li>
+    <li>Category Display</li>
 {% endblock %}
 
-{% block title %}Categories | {{ block.super }}{% endblock %}
+{% block title %}
+  Categories | {{ block.super }}
+ {% endblock %}
 
 {% block body_onload %}
   {{ block.super }}
@@ -89,30 +93,27 @@
 {% block h1 %}Aggregated STARS Category Scores{% endblock %}
 
 {% block tab_content %}
-
-  {% load content %}
   {% display_block_content 'data_display_categories' user %}
 
-  <div class='well'>
-    {% include 'institutions/data_displays/top_level_filters.html' %}
-  </div>
+  {% include 'institutions/data_displays/top_level_filters.html' %}
+
   {% if object_list %}
-    <div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
-    <div class='row'><div class='span12'>
-      <div class="dashboard-chart" id="barChart"></div>
-    </div></div>
+  <div class='row displays-down-arrow'>
+      <i class='fa fa-arrow-down'></i>
+  </div>
+  <div class="dashboard-chart col-6" id="barChart"></div>
   {% endif %}
-  <div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+  <div class='row displays-down-arrow'><i class='fa fa-arrow-down'></i></div>
   {% if object_list %}
     <div class="row">
-      <div class="span12">
+      <div class="col">
         <h4 style='padding: 30px;'>
           Average Scores (percentage of available points earned)
         </h4>
       </div>
     </div>
   {% endif %}
-  <table id='institution_list' class='table'>
+  <table id='institution_list' class='table table-striped'>
     {% if object_list %}
       <tr>
         <td style='text-align: left; font-weight: bold'>
@@ -123,7 +124,7 @@
         {% endfor %}
       </tr>
       {% for o in object_list %}
-        <tr class="{% cycle 'even' 'odd' %}">
+        <tr>
           <td style='text-align: left; font-weight: bold'>
             {{ o.title }}
             ({{ o.total }} found)

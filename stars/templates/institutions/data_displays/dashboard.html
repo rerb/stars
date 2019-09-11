@@ -134,16 +134,15 @@
 
 {% block tab_content %}
   {{ block.super }}
-
+  <br>
   <div class="row">
-    <div class="span12">
+    <div class="col-12">
       <h2 class='dashboard'>Current Ratings</h2>
     </div>
-    <div class="span8">
-      <div class="dashboard-chart" id="ratingChart"></div>
+    <div class="col-md-7 dashboard" id="ratingChart">
     </div>
-    <div class="span4">
-      <table class="table table-condensed">
+    <div class="col-md-4 col-sm-12 offset-md-1">
+      <table class="table table-sm">
 	<tbody>
 	  <tr>
 	    <th>Platinum</th>
@@ -166,16 +165,16 @@
       {% display_block_content 'dash_ratings' user %}
     </div>
   </div>
+  <br>
 
   <div class="row">
-    <div class="span12">
+    <div class="col-12">
       <h2 class='dashboard'>Participation</h2>
     </div>
-    <div class="span8">
-      <div class="dashboard-chart" id="areaChart"></div>
+    <div class="col-md-7 dashboard-chart" id="areaChart">
     </div>
-    <div class="span4">
-      <table class="table table-condensed">
+    <div class="col-md-4 col-sm-12 offset-md-1">
+      <table class="table table-sm">
 	<tbody>
 	  <tr>
 	    <th>Registrants</th>
@@ -194,14 +193,15 @@
       {% display_block_content 'dash_parts_and_subs' user %}
     </div>
   </div>
+  <br>
 
   <div class="row">
-    <div class="span12">
+    <div class="col-12">
       <h2 class='dashboard'>Participants by Country</h2>
     </div>
-      <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
+      <div class="col-12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
   </div>
-  <div class="well well-sm">
+  <div>
       STARS pins represent rated institutions. Green dots are unrated institutions
       with full access. Blue dots are unrated institutions with basic access.
   </div>
@@ -209,8 +209,8 @@
   <br>
 
   <div class="row">
-    <div class="span6">
-      <table class="table table-condensed">
+    <div class="col-6">
+      <table class="table table-sm">
 	<tbody>
           {% for country, count in participants %}
             {% if forloop.counter <= half_num_participants %}
@@ -223,8 +223,8 @@
 	</tbody>
       </table>
     </div>
-    <div class="span6">
-      <table class="table table-condensed">
+    <div class="col-6">
+      <table class="table table-sm">
 	<tbody>
           {% for country, count in participants %}
             {% if forloop.counter > half_num_participants %}

@@ -26,11 +26,17 @@
 {% endblock %}
 
 {% block content %}
-	<h1>{% block h1 %}STARS Institutions{% endblock %}</h1>
-      {% block page_description %}{% endblock %}
-	  {% block tabs %}{% endblock %}
-      <div class="tab-content">
-      	<div class="tab-pane active">
+
+          <div class="col-12">
+              <h1>{% block h1 %}STARS Institutions{% endblock %}</h1>
+          </div>
+
+      <div class="col-10 offset-1">
+          {% block page_description %}{% endblock %}
+    	  {% block tabs %}{% endblock %}
+      </div>
+      <div class="tab-content row justify-content-center">
+      	<div class="tab-pane active col-10">
             {% block tab_content %}{% endblock %}
 			{% block tab_footer %}
 			  {% display_block_content 'data_use_guidelines_message' user %}

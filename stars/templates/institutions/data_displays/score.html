@@ -26,17 +26,21 @@
   {% display_block_content 'data_display_scores' user %}
 
   <div class='well'>
-    <span class="badge" style="font-size: 1.1em;">Step 1</span><br/>
+    <h3>Step 1</h3>
+    <br/>
     {% include 'institutions/data_displays/top_level_filters.html' %}
   </div>
-  <div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+  <div class='row displays-down-arrow'><i class='fa fa-arrow-down'></i></div>
 
-  <div class='well'>
-    <span class="badge" style="font-size: 1.1em;">Step 2</span><br/>
+    <h3>Step 2</h3>
+    <br/>
     {% display_block_content 'data_display_score_second_filter' user %}
-    <table class='table'>
-      {{ select_form|bootstrap }}
-    </table>
+    <div class="col-10">
+        <table class='table'>
+          {{ select_form|bootstrap }}
+        </table>
+    </div>
+
     <div style='text-align: center'>
       <script type='text/javascript'>
        !function ($) {
@@ -76,19 +80,19 @@
        $('#applyButton').addScoreColumns("{{ selected_filters_querydict.urlencode|safe }}");
       </script>
     </div>
-  </div>
 
-  <div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+
+  <div class='row displays-down-arrow'><i class='fa fa-arrow-down'></i></div>
 
   {% if object_list and get_params %}
-    <div class='row'><div class='span2 offset10'>
+    <div class='row'><div class='col offset-8'>
       <a href='excel/?{{ get_params }}' class='btn btn-info'>
-	<i class='icon-th icon-white'></i> Export Results
+	<i class='fa fa-th icon-white'></i> Export Results
       </a>
     </div></div>
   {% endif %}
 
-  <table id='institution_list' class='table'>
+  <table id='institution_list' class='table table-striped'>
     {% if object_list %}
       <thead>
        	<tr>
@@ -105,7 +109,7 @@
       </thead>
       <tbody>
 	{% for o in object_list %}
-	  <tr class="{% cycle 'even' 'odd' %}">
+	  <tr>
 	    <td style='text-align: left;white-space: nowrap;'>
 	      <a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	    </td>

@@ -51,8 +51,8 @@
       </thead>
       <tbody>
         {% for institution in object_list %}
-          <tr class="{% cycle 'even' 'odd' %}">
-            <td style='text-align: left' class="span4">
+          <tr>
+            <td style='text-align: left'>
               {% if institution.rated_submission %}
                 <a href="{% url 'institutions:scorecard-list' institution.slug %}"
                    id='scorecard-list'>
@@ -70,24 +70,24 @@
               {% endif %}
             </td>
             {% if institution.rated_submission %}
-                <td class="span1">
+                <td>
                   {{ institution.rated_submission.creditset.version }}
                 </td>
-                <td class="span2">
+                <td>
                 {{ institution.rated_submission.rating }}
                 {% if institution.older_than_three_years %}
                     *
 	            {% endif %}
                 </td>
-                <td class="span2">
+                <td>
                     <a href="{% url 'institutions:scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
                       {{ institution.rated_submission.date_submitted }}
                     </a>
                 </td>
             {% else %}
-                <td class="span1"></td>
-                <td class="span2"></td>
-                <td class="span2"></td>
+                <td></td>
+                <td></td>
+                <td></td>
             {% endif %}
           </tr>
         {% endfor %}
