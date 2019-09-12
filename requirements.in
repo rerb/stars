@@ -4,7 +4,6 @@ Fabric==1.4.2
 Pillow<=7.0.0
 WeasyPrint==0.42.3  # last version to support python2
 Werkzeug==0.8.3
-# amqp==2.2.2 # Insert this line into requirements.txt manually after running pip-compile.
 amqplib==1.0.2
 anyjson==0.3.3
 beautifulsoup4==4.7.1
@@ -19,7 +18,7 @@ django-celery-results==1.0.1
 django-classy-tags==0.7.2
 django-cms==3.2.5
 django-codemirror-widget==0.4.0
-django-compressor==1.5
+django-compressor==2.0
 django-debug-toolbar==1.4
 # django-excel-response==2.0.3  # Insert this line into requirements.txt manually after running pip-compile.
 django-extensions==1.7.9
@@ -52,7 +51,6 @@ hg-git==0.3.4
 html5lib>=1.0.1
 httplib2==0.8
 ipython==5.4
-# kombu==4.1.0 # replace this in requirements.txt
 lxml==3.6.4
 mercurial==2.7
 mimeparse==0.1.3
