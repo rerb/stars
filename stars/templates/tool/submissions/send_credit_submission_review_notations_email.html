@@ -35,9 +35,11 @@
 
   <form id="sendCreditSubmissionReviewNotationsForm" method="post"
         action="." class="generalForm">
-    <div class="container span8" style="padding-left: 50px">
+    <div class="container" style="padding-left: 50px">
         <div class="row">
-        {{ form|bootstrap }}
+            <div class="col-8">
+                {{ form|bootstrap }}
+            </div>    
       </div>
       <input type="hidden" name="next" id="next"
              value="{{ next }}">

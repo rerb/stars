@@ -22,14 +22,14 @@
         <div class="accordion-inner">
           {% for creditsubmission in does_not_meet_criteria_list %}
             <div class="row" style="padding-top:10px">
-              <div class="span5">
+              <div class="col-5">
                 <a href="{{ creditsubmission.get_submit_url }}">
                   <strong>
                     {{ creditsubmission.credit }} <!-- {{ c.id }} -->
                   </strong>
                 </a>
               </div>
-              <div class="span2 pull-right">
+              <div class="col-2 pull-right">
                 {% if not creditsubmission.is_unlocked_for_review %}
                   <i class="fa fa-lock fa-lg fa-fw"></i>
                 {% else %}
@@ -41,12 +41,12 @@
             {% if creditsubmission.creditsubmissionreviewnotation_set.count %}
               <div class="row">
                 {% for notation in creditsubmission.creditsubmissionreviewnotation_set.all %}
-                  <div class="span3 offset1" style="font-size: 13px; line-height: 24px">
+                  <div class="col-3 offset-1" style="font-size: 13px; line-height: 24px">
                     <a href="{{ creditsubmission.get_submit_url }}review">
                       {{ notation.get_kind_display }}
                     </a>
                   </div>
-                  <div class="span6 offset2">
+                  <div class="col-6 offset-2">
                     {{ notation.comment|safe }}
                   </div>
               </div> <!-- row -->
@@ -71,14 +71,14 @@
           <div class="accordion-inner">
             {% for creditsubmission in not_really_pursuing_list %}
               <div class="row" style="padding-top:10px">
-                <div class="span5">
+                <div class="col-5">
                   <a href="{{ creditsubmission.get_submit_url }}">
                     <strong>
                       {{ creditsubmission.credit }} <!-- {{ c.id }} -->
                     </strong>
                   </a>
                 </div>
-                <div class="span2 pull-right">
+                <div class="col-2 pull-right">
                   {% if not creditsubmission.is_unlocked_for_review %}
                     <i class="fa fa-lock fa-lg fa-fw"></i>
                   {% else %}
@@ -90,12 +90,12 @@
               {% if creditsubmission.creditsubmissionreviewnotation_set.count %}
                 <div class="row">
                   {% for notation in creditsubmission.creditsubmissionreviewnotation_set.all %}
-                    <div class="span3 offset1" style="font-size: 13px; line-height: 24px">
+                    <div class="col-3 offset-1" style="font-size: 13px; line-height: 24px">
                       <a href="{{ creditsubmission.get_submit_url }}review">
                         {{ notation.get_kind_display }}
                       </a>
                     </div>
-                    <div class="span6 offset2">
+                    <div class="col6 offset-2">
                       {{ notation.comment|safe }}
                     </div>
                 </div> <!-- row -->
@@ -120,14 +120,14 @@
           <div class="accordion-inner">
             {% for creditsubmission in meets_criteria_list %}
               <div class="row" style="padding-top:10px">
-                <div class="span5">
+                <div class="col-5">
                   <a href="{{ creditsubmission.get_submit_url }}">
                     <strong>
                       {{ creditsubmission.credit }} <!-- {{ c.id }} -->
                     </strong>
                   </a>
                 </div>
-                <div class="span2 pull-right">
+                <div class="col-2 pull-right">
                   {% if not creditsubmission.is_unlocked_for_review %}
                     <i class="fa fa-lock fa-lg fa-fw"></i>
                   {% else %}
@@ -139,12 +139,12 @@
               {% if creditsubmission.creditsubmissionreviewnotation_set.count %}
                 <div class="row">
                   {% for notation in creditsubmission.creditsubmissionreviewnotation_set.all %}
-                    <div class="span3 offset1" style="font-size: 13px; line-height: 24px">
+                    <div class="col-3 offset-1" style="font-size: 13px; line-height: 24px">
                       <a href="{{ creditsubmission.get_submit_url }}review">
                         {{ notation.get_kind_display }}
                       </a>
                     </div>
-                    <div class="span6 offset2">
+                    <div class="col-6 offset-2">
                       {{ notation.comment|safe }}
                     </div>
                 </div> <!-- row -->

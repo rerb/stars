@@ -22,7 +22,7 @@
 {% block content %}
 
 	<div class='row'>
-		<div class='span2'>
+		<div class='col-2'>
 			{% if user.is_staff %}
 				<p style='text-align: center' >
 					<a href='/_ad/old_cms/' target='_blank'>
@@ -32,7 +32,7 @@
 				</p>
 			{% endif %}
 		</div>
-		<div class='span12'>
+		<div class='col-12'>
 			{% block center %}{% endblock %}
 		</div>
 	</div>

@@ -20,52 +20,62 @@
   <form id="creditSubmissionReviewForm" method="post" action="."
         class="generalForm">
     <input type="hidden" name="popup" value="{{ popup }}">
-    <div class="container span8">
-      <div class="row span8">
-        <div class="pull-left">
-          {{ form|bootstrap }}
-        </div>
+    <div class="container">
+      <div class="row">
+          <div class="col">
+              <div class="pull-left">
+                {{ form|bootstrap }}
+              </div>
+          </div>
       </div>
-      <div class="row span8">
-        Review Notations
+      <div class="row">
+          <div class="col">
+              Review Notations
+          </div>
       </div>
+
       {% for formset in inlines %}
         {% for form in formset.forms %}
-          <div class="container well span8">
-            <div class="row">
-              {{ form.id }}
-              <div class="span3">
-                {{ form.kind }}
-              </div>
-            </div>
-            <div class="row">
-              <div class="span8">
-                {{ form.comment }}
-              </div>
-            </div>
-            <div class="row" style="padding-top: 10px">
-              <div class="span8">
-                {{ form.send_email }} Include in Next Email
-                {% if form.instance.email_sent %}
-                  (Again)
-                {% endif %}
-                {% if form.instance.pk %}
-                  <div class="pull-right">
-                    {{ form.DELETE }} Delete
+          <div class="container">
+              <div class="col-8">
+                  <div class="row">
+                    {{ form.id }}
+                    <div class="col-3">
+                      {{ form.kind }}
+                    </div>
                   </div>
-                {% endif %}
+                  <div class="row">
+                    <div class="col-8">
+                      {{ form.comment }}
+                    </div>
+                  </div>
+                  <div class="row" style="padding-top: 10px">
+                    <div class="col-8">
+                      {{ form.send_email }} Include in Next Email
+                      {% if form.instance.email_sent %}
+                        (Again)
+                      {% endif %}
+                      {% if form.instance.pk %}
+                        <div class="pull-right">
+                          {{ form.DELETE }} Delete
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
               </div>
-            </div>
+
           </div>
           {{ formset.management_form }}
         {% endfor %}
       {% endfor %}
-      <div class="row span8">
-        <div class="form-actions">
-          <button type="submit" id="submit_button" class="btn btn-primary">
-            Save
-          </button>
-        </div>
+      <div class="row">
+          <div class="col-8">
+              <div class="form-actions">
+                <button type="submit" id="submit_button" class="btn btn-primary">
+                  Save
+                </button>
+              </div>
+          </div>
       </div>
     </div>
   </form>

@@ -40,7 +40,7 @@
   <div class="container">
 
     <div class="row top-nav">
-      <div class="span7 aashe-tabs">
+      <div class="col-7 aashe-tabs">
         <a href='http://www.aashe.org/' class='left'><strong>aashe</strong></a>
         <a href='http://stars.aashe.org/' class='left'><strong>stars</strong></a>
         <a href='http://www.aashe.org/conference' class='left'><strong>conference</strong></a>
@@ -56,7 +56,7 @@
 
     <div class="row header">
 
-      <div class="span3">
+      <div class="col-3">
         <ul class="thumbnails">
           <li>
             <a href='/'><img src="{{ STATIC_URL }}images/stars_logo.png" width='180px' /></a>
@@ -64,12 +64,12 @@
         </ul>
       </div>
 
-      <div class="span5 message" style="padding: 125px 0 0 0; font-family: aller, arial;">
+      <div class="col-5 message" style="padding: 125px 0 0 0; font-family: aller, arial;">
         The Sustainability Tracking, Assessment &amp; Rating System™ (STARS) is a transparent, self-reporting framework for colleges and universities to measure their sustainability performance.
       </div>
 
 
-      <div class="span2 offset2">
+      <div class="col-2 offset-22">
         <div class="tab-wrap social-tabs">
           <ul class="tab-nav">
             <li id="tweet-tab"><a href="http://www.twitter.com/aasheconference">Twitter</a></li>
@@ -82,13 +82,13 @@
     </div> <!-- end header -->
 
     <div class="row">
-      <div class="span12">
+      <div class="col-12">
         <div class="navbar">
           <div class="navbar-inner">
             {% block main_menu %}
             {% include 'helpers/main_menu.html' %}
             {% endblock %}<form class="search-form navbar-search pull-right" action="/2013/search/node" method="post" id="-twitter-bootstrap-search-form" accept-charset="UTF-8"><div><div class="control-group form-type-textfield form-item-keys">
-            <div class="controls"> <input class="search-query span2 form-text" placeholder="Search" type="text" id="edit-keys" name="keys" value="" size="40" maxlength="255" />
+            <div class="controls"> <input class="search-query col-2 form-text" placeholder="Search" type="text" id="edit-keys" name="keys" value="" size="40" maxlength="255" />
             </div></div>
             <input type="hidden" name="form_build_id" value="form-YzuaaYOBKg9O9hi4nABheT2TSeXUuQmFbOdgb_z8E0c" />
             <input type="hidden" name="form_id" value="_twitter_bootstrap_search_form" />
@@ -101,7 +101,7 @@
 
 
 
-      <section class="span12">
+      <section class="col-12">
         {% block crumbs %}{% endblock %}
 
         <a id="main-content"></a>
@@ -118,7 +118,7 @@
 
   <div class="row footer">
 
-    <div class="span12">
+    <div class="col-12">
       <div class="hero-unit">
         <h2>Partner logos go here.</h2>
       </div>
@@ -127,12 +127,12 @@
   </div>
 
   <div id="footer-message" class="row">
-    <div class="span6">
+    <div class="col-6">
       &copy;2013 <a href='http://www.aashe.org'>Association for the Advancement of Sustainability in Higher Education</a><br/>
       1536 Wynkoop St., Suite 100, Denver CO 80202 - t: 303.395.1331 x111 <br />
       <strong>Remittance Address: PO Box 824583, Philadelphia, PA 19182-4583</strong>
     </div>
-    <div class='bottom-menu span4 offset2'>
+    <div class='bottom-menu col-4 offset-2'>
       <a href='http://www.aashe.org/about/contact.php'>Contact Us</a> |
       <a href='http://www.aashe.org/privacy-policy'>Privacy Policy</a> |
       <a href='http://www.aashe.org/'>AASHE Home</a>

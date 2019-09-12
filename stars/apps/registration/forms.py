@@ -179,6 +179,7 @@ class InstitutionRegistrationForm(ModelForm):
         self.fields['executive_contact_email'].required = True
 
         for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
             if field.required:
                 field.label += " *"
 
