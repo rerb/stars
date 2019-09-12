@@ -19,12 +19,12 @@
 		<a	href='{{ url_prefix }}download/{{ task }}/'
 			class='btn btn-success'
 			id='downloadButton'>
-				Download <i class='icon-download icon-white'></i></a>
+				Download <i class='fa fa-download icon-white'></i></a>
 	</div>
-	
+
 	<script type='text/javascript'>
-		
-		function pollForResult(url) {  
+
+		function pollForResult(url) {
 		    $.getJSON(url, function(data) {
 		    	if(data.task.result != null) {
 						$('#waiting').hide();

@@ -100,76 +100,86 @@
     {% comment %}
       Links to download SubmissionSet exports:
     {% endcomment %}
-    <div id="userHasInsufficientPermissions"
-         class="modal hide fade"
-         aria-hidden="true">
-      <div class="modal-header">
-        <button type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-hidden="true">
-          &times;
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>
-          You don't have sufficient priveleges to view exported submissions.
-        </p>
-        <p>
-          Contact {{ institution.get_liaison_name }}, the STARS
-          administrator for {{ institution.name }}, to upgrade your
-          priveleges.
-        </p>
-        {% if institution.get_liaison_email %}
-          <p>
-            You can email {{ institution.get_liaison_name }}
-            at <mailto="{{ institution.get_liaison_email }}">
-            {{ institution.get_liaison_email }}</mailto>.
-          </p>
-        {% endif %}
-      </div>
-      <div class="modal-footer">
-        <button class="btn"
-                data-dismiss="modal"
-                aria-hidden="true">
-          Close
-        </button>
-      </div>
+    <div id="userHasInsufficientPermissions" class="modal fade" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button"
+                          class="close"
+                          data-dismiss="modal"
+                          aria-hidden="true">
+                    &times;
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <p>
+                    You don't have sufficient priveleges to view exported submissions.
+                  </p>
+                  <p>
+                    Contact {{ institution.get_liaison_name }}, the STARS
+                    administrator for {{ institution.name }}, to upgrade your
+                    priveleges.
+                  </p>
+                  {% if institution.get_liaison_email %}
+                    <p>
+                      You can email {{ institution.get_liaison_name }}
+                      at <mailto="{{ institution.get_liaison_email }}">
+                      {{ institution.get_liaison_email }}</mailto>.
+                    </p>
+                  {% endif %}
+                </div>
+                <div class="modal-footer">
+                  <button class="btn" data-dismiss="modal" aria-hidden="true">
+                    Close
+                  </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="institutionDoesNotHaveFullAccess"
-         class="modal hide fade"
-         aria-hidden="true">
-      <div class="modal-header">
-        <button type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-hidden="true">
-          &times;
-        </button>
-        <h3>
-          Full Access Required
-        </h3>
-      </div>
-      <div class="modal-body">
-        <p>
-          Only institutions with Full Access can export submissions.
-        </p>
-        <p>
-          You can upgrade to Full Access by purchasing a STARS
-          subscription from your
-          <a href="{% url 'tool:tool-summary' institution.slug %}">
-            My Summary</a>
-          page.
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn"
-                data-dismiss="modal"
-                aria-hidden="true">
-          Close
-        </button>
-      </div>
+         class="modal fade"
+         aria-hidden="true"
+         role="dialog"
+         tabindex="-1">
+         <div class="modal-dialog" role="document">
+             <div class="dialog-content">
+                 <div class="modal-header">
+                   <button type="button"
+                           class="close"
+                           data-dismiss="modal"
+                           aria-hidden="true">
+                     &times;
+                   </button>
+                   <h3>
+                     Full Access Required
+                   </h3>
+                 </div>
+                 <div class="modal-body">
+                   <p>
+                     Only institutions with Full Access can export submissions.
+                   </p>
+                   <p>
+                     You can upgrade to Full Access by purchasing a STARS
+                     subscription from your
+                     <a href="{% url 'tool:tool-summary' institution.slug %}">
+                       My Summary</a>
+                     page.
+                   </p>
+                 </div>
+                 <div class="modal-footer">
+                   <button class="btn"
+                           data-dismiss="modal"
+                           aria-hidden="true">
+                     Close
+                   </button>
+                 </div>
+             </div>
+         </div>
+
+
+
+
     </div>
 
     {% comment %}
@@ -181,14 +191,18 @@
          role="dialog"
          aria-labelledby="myModalLabel"
          aria-hidden="true">
-      <div class="modal-body">
-        <p>...</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn"
-                data-dismiss="modal"
-                aria-hidden="true">Close</button>
-      </div>
+         <div class="modal-dialog" role="document">
+             <div class="modal-content">
+                 <div class="modal-body">
+                   <p>...</p>
+                 </div>
+                 <div class="modal-footer">
+                   <button class="btn"
+                           data-dismiss="modal"
+                           aria-hidden="true">Close</button>
+                 </div>
+             </div>
+         </div>
     </div>
 
     {% comment %}

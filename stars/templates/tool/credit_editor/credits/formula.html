@@ -79,37 +79,41 @@
 {% endblock %}
 
 {% block extra_footer %}
-  <div class="modal hide fade"
+  <div class="modal fade" role="dialog"
        id="delete-test-case-modal">
-    <div class="modal-header">
-      <button type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-hidden="true">
-        &times;
-      </button>
-      <h3>
-        Really?
-      </h3>
-    </div>
-    <div class="modal-body">
-      <p>
-        Sure you want to delete that test case?
-      </p>
-    </div>
-    <div class="modal-footer">
-      <form id="delete-test-case-form"
-            method="post"
-            action="">
-        <button type="submit">
-          Ah-yup, get rid of it.
-        </button>
-        <a class="btn"
-           data-dismiss="modal">
-          No! Delete nothing!
-        </a>
-      </form>
-    </div>
+       <div class="modal-dialog" role="document">
+           <div class="modal-content">
+               <div class="modal-header">
+                 <h3>
+                   Really?
+                 </h3>
+                 <button type="button"
+                         class="close"
+                         data-dismiss="modal"
+                         aria-hidden="true">
+                   &times;
+                 </button>
+               </div>
+               <div class="modal-body">
+                 <p>
+                   Sure you want to delete that test case?
+                 </p>
+               </div>
+               <div class="modal-footer">
+                 <form id="delete-test-case-form"
+                       method="post"
+                       action="">
+                   <button type="submit">
+                     Ah-yup, get rid of it.
+                   </button>
+                   <a class="btn"
+                      data-dismiss="modal">
+                     No! Delete nothing!
+                   </a>
+                 </form>
+               </div>
+           </div>
+       </div>
   </div>
 
   <script>

@@ -21,22 +21,26 @@
       </script>
     {% else %}
       {% if modal %}
-        <div class="modal hide fade" id="{{ id }}">
-          {% if help_text_title %}
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal"
-                      aria-hidden="true">&times;</button>
-              <h3>
-                {{ help_text_title }}
-              </h3>
+        <div class="modal fade" id="{{ id }}" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    {% if help_text_title %}
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h3>
+                          {{ help_text_title }}
+                        </h3>
+                      </div>
+                    {% endif %}
+                    <div class="modal-body">
+                      <p>{{ help_text }}</p>
+                    </div>
+                    <div class="modal-footer">
+                      <a href="#" class="btn" data-dismiss="modal">Close</a>
+                    </div>
+                </div>
             </div>
-          {% endif %}
-          <div class="modal-body">
-            <p>{{ help_text }}</p>
-          </div>
-          <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">Close</a>
-          </div>
         </div>
         <a data-toggle="modal" href="#{{ id }}" >
           <i class='fa fa-question-sign'></i>

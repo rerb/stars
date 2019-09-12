@@ -239,7 +239,7 @@
                             <button type="button" class="btn btn-info btn-small"
                                     data-toggle="modal"
                                     data-target="#editOptInCredits{{ sub.id|slugify }}">
-                              <i class='icon-check icon-white'></i>
+                              <i class='fa fa-check icon-white'></i>
                               Add/Drop Credits
                             </button>
                             <div class="modal fade"
@@ -248,13 +248,13 @@
                               <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                   <div class="modal-header">
+                                    <h4 class="modal-title">
+                                      Add/Drop {{ sub.subcategory }} Credits
+                                    </h4>
                                     <button type="button" class="close"
                                             data-dismiss="modal" aria-label="Close">
                                       <span aria-hidden="true">&times;</span>
                                     </button>
-                                    <h4 class="modal-title">
-                                      Add/Drop {{ sub.subcategory }} Credits
-                                    </h4>
                                   </div>
                                   <div class="modal-body">
                                     <form role="form">

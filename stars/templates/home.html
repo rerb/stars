@@ -68,18 +68,22 @@
             Subscribe to the STARS Update
          </a>
        </div>
-       <div id="updateModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-         <div class="modal-header">
-           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-           <h3 id="updateModalLabel">STARS Update</h3>
-         </div>
-         <div class="modal-body">
-           {% include "helpers/stars_update_reg.html" %}
-         </div>
+       <div id="updateModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+           <div class="modal-dialog" role="document">
+               <div class="modal-content">
+                   <div class="modal-header">
+                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                     <h3 id="updateModalLabel">STARS Update</h3>
+                   </div>
+                   <div class="modal-body">
+                     {% include "helpers/stars_update_reg.html" %}
+                   </div>
 
-         <div class="modal-footer">
-           <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-         </div>
+                   <div class="modal-footer">
+                     <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+                   </div>
+               </div>
+           </div>
        </div>
       </div>
     </div>
