@@ -7,17 +7,17 @@
 {% block institution_content %}
 
 	<div class='row'>
-		<div class='span5 offset2'>
+		<div class='col-5 offset-2'>
 			<div class='alert alert-info' style='text-align: center;''>
 				{{ old_submission.date_submitted }}
 				{% if old_submission.rating %}( {{ old_submission.rating }} ){% endif %}
-				<i class='icon-arrow-right icon-white'></i>
+				<i class='fa fa-arrow-right icon-white'></i>
 				Current Submission Data
 			</div>
 		</div>
 	</div>
 	<div class='row'>
-		<div class='span9'>
+		<div class='col-9'>
     		{% display_block_content 'data_migration_warning' user %}
 
     		<div class='alert alert-warning'>

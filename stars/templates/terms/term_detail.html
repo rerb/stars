@@ -11,11 +11,11 @@
 <div class='pull-right'>
   <a href="{% url 'admin:terms_term_change' term.pk %}"
 		target="blank">
-    <i class='icon-edit'></i></a>
+    <i class='fa fa-edit'></i></a>
 {% endif %}
 {% if perms.terms_delete_term %}
   <a href="{% url 'admin:terms_term_delete' term.pk %}"
 		target="blank">
-    <i class='icon-trash'></i></a>
+    <i class='fa fa-trash'></i></a>
 </div>
 {% endif %}

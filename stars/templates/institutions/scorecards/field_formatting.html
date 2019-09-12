@@ -69,28 +69,28 @@
 	 id="flag_{{ f.id|unlocalize }}"
 	 title="{{ f.description }}"
 	 class='pull-right'>
-	<i class='icon-flag'> </i></a>
+	<i class='fa fa-flag'> </i></a>
       <script type='text/javascript'>$('#flag_{{ f.id|unlocalize }}').tooltip({'html': true});</script>
     {% endfor %}
   {% endif %}
   {% if user.is_staff %}
     {% ifequal field.documentation_field.type 'upload' %}
       <a href="{{ field.get_admin_url }}" target="_blank"
-         class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
+         class='btn btn-sm pull-right'><i class='fa fa-upload'></i></a>
     {% endifequal %}
 
-    <a href="{{ field.get_flag_url }}" class='btn btn-mini pull-right'>
-      <i class='icon-flag'></i>
+    <a href="{{ field.get_flag_url }}" class='btn btn-sm pull-right'>
+      <i class='fa fa-flag'></i>
     </a>
   {% endif %}
 
   {% testrule user_is_institution_admin user institution %}
     <a href="{{ field.get_correction_url }}"
-       class='btn btn-mini pull-right'
+       class='btn btn-sm pull-right'
        data-toggle="tooltip"
        id="dc_{{ field.id|unlocalize }}"
        title="{% get_help_context 'data_correction_popup' %}">
-      <i class='icon-pencil'> </i></a>
+      <i class='fa fa-pencil'> </i></a>
     <script type='text/javascript'>
      var options = {'html': true}
      $('#dc_{{ field.id|unlocalize }}').tooltip(options);

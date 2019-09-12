@@ -13,7 +13,7 @@
        <td><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></td>
        <td>{% if user.is_staff %}
               <a href="{{ article.get_django_admin_url }}" target="_blank">
-              	<i class='icon-edit'></i>
+              	<i class='fa fa-edit'></i>
               </a>
            {% endif %}</td>
        </tr></table>

@@ -37,13 +37,13 @@
               {% for p in sub.subscriptionpayment_set.all %}
                 <a href="{% url 'edit_payment' institution.slug sub.id p.id %}"
                    class='btn'>
-                  <i class='icon-barcode'></i>
+                  <i class='fa fa-barcode'></i>
                 </a>
               {% endfor %}
               {% if not sub.paid_in_full %}
                 <a href="{% url 'add_payment' institution.slug sub.id %}"
                    class='btn'>
-                  <i class='icon-plus-sign'></i>
+                  <i class='fa fa-plus'></i>
                 </a>
               {% endif %}
             </td>

@@ -35,7 +35,7 @@
                     Join AASHE now!
                   </a>
                 </div>
-            </div>        
+            </div>
         </div>
 
     </div>
@@ -131,7 +131,7 @@
         {% if wizard.steps.next %}
           <button type='submit' class='btn btn-primary pull-right'
                   onclick='clearErrors(); this.form.submit();'>
-            Next <i class='icon-step-forward icon-white'></i>
+            Next <i class='fa fa-step-forward icon-white'></i>
           </button>
         {% else %}
           <button type='submit' class='btn btn-success pull-right'>
@@ -142,7 +142,7 @@
           <button name="wizard_goto_step" type="submit"
                   class='btn pull-right' value="{{ wizard.steps.prev }}"
                   style='margin-right: 10px;'>
-            <i class='icon-step-backward'></i> Previous
+            <i class='fa fa-step-backward'></i> Previous
           </button>
         {% endif %}
       </div>

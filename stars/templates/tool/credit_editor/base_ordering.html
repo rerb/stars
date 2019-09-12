@@ -19,13 +19,13 @@
           {% if show_edit_button %}
             <a href='{{ form.instance.get_edit_url }}'
                title="edit">
-              <i class='icon-edit'></i>
+              <i class='fa fa-edit'></i>
             </a>
           {% endif %}
           {% if show_delete_button %}
             <a href="{{ form.instance.get_delete_url }}"
                title="delete">
-              <i class='icon-trash'></i>
+              <i class='fa fa-trash'></i>
             </a>
           {% endif %}
         {% endblock %}
