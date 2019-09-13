@@ -6,14 +6,31 @@
 
     <meta charset="UTF-8">
 
-    {% compress css %}
+    
       <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
       <link href="{{ STATIC_URL }}bootstrap/css/mdb.min.css" rel="stylesheet">
       <link rel="stylesheet"
             href="{{ STATIC_URL }}fonts/dejavu-sans/stylesheet.css">
       <link rel="stylesheet" href="{{  STATIC_URL  }}css/base.css">
       <link rel="stylesheet" href="{{  STATIC_URL  }}css/facelift.css">
-    {% endcompress %}
+
+
+    <script type="text/javascript">
+       var _sf_startpt=(new Date()).getTime()</script>
+      <script type="text/javascript"> /* Provisory for dev environment: */
+       localStorage.clear(); </script>
+       <script src="{{ STATIC_URL }}bootstrap/js/jquery-3.4.1.min.js" type="text/javascript"></script>
+       <script src="{{ STATIC_URL }}bootstrap/js/popper.min.js" type="text/javascript"></script>
+      <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"
+              type="text/javascript"></script>
+      <!-- <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/mdb.min.js"></script> -->
+      <script src="{{ STATIC_URL }}js/include.js"
+              type="text/javascript"></script>
+      <script src="{{ STATIC_URL }}js/new_include.js"
+              type="text/javascript"></script>
+      <script src="{{ STATIC_URL }}js/registration.js"
+              type="text/javascript"></script>
+
 
 
     <script src="https://use.fontawesome.com/64c3db2e90.js"></script>
@@ -478,23 +495,6 @@
       <script type='text/javascript' src='https://{{ settings.STARS_BROCHURE_HOST }}/wp-content/plugins/js_composer/assets/js/dist/js_composer_front.min.js?ver=4.12.1'></script>
       <script type='text/javascript' src='https://{{ settings.STARS_BROCHURE_HOST }}/wp-content/themes/aashe-stars-theme/js/slider-stars.js?ver=20160916'></script>
     {% endcomment %}
-    {% compress js %}
-    <script type="text/javascript">
-       var _sf_startpt=(new Date()).getTime()</script>
-      <script type="text/javascript"> /* Provisory for dev environment: */
-       localStorage.clear(); </script>
-       <script src="{{ STATIC_URL }}bootstrap/js/jquery-3.4.1.min.js" type="text/javascript"></script>
-       <script src="{{ STATIC_URL }}bootstrap/js/popper.min.js" type="text/javascript"></script>
-      <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"
-              type="text/javascript"></script>
-      <!-- <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/mdb.min.js"></script> -->
-      <script src="{{ STATIC_URL }}js/include.js"
-              type="text/javascript"></script>
-      <script src="{{ STATIC_URL }}js/new_include.js"
-              type="text/javascript"></script>
-      <script src="{{ STATIC_URL }}js/registration.js"
-              type="text/javascript"></script>
-    {% endcompress %}
   </body>
 
 </html>
