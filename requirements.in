@@ -82,7 +82,7 @@ zope.interface==4.0.3
 zope.testing==4.1.1
 -e git+https://github.com/AASHE/django-celery-downloader.git@no-dj-celery#egg=django-celery-downloader-dev
 -e git+https://github.com/AASHE/django-collapsing-menu#egg=django_collapsing_menu-dev
--e git+https://github.com/AASHE/iss.git@v2.13#egg=iss
+-e git+https://github.com/AASHE/iss.git@v2.14#egg=iss
 -e git+https://github.com/baronvonvaderham/django-file-cache-tag.git#egg=filecache
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 -e git+https://github.com/sixohsix/twitter.git@c3a3fb3276938b053df0aec8421586497415e6ec#egg=twitter1
