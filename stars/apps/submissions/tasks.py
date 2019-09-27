@@ -6,6 +6,7 @@ from logging import getLogger
 from celery import shared_task
 from celery.decorators import task
 from django.core.cache import cache
+from django.core.files.temp import NamedTemporaryFile
 
 from stars.apps.credits.models import CreditSet, Subcategory
 from stars.apps.institutions.models import Institution, MigrationHistory
@@ -54,11 +55,9 @@ def take_snapshot_task(ss, user):
 @task()
 def build_certificate_export(ss):
     logger.info("starting certificate export(ss: %d)" % ss.id)
-    # cert_pdf = build_certificate_pdf(ss)
     pdf = build_certificate_pdf(ss)
-    from django.core.files.temp import NamedTemporaryFile
     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-    tempfile.write(pdf.getvalue())
+    pdf.write_pdf(tempfile)
     tempfile.close()
     logger.info("cert export done(ss: %d)" % ss.id)
     return tempfile.name
