@@ -14,6 +14,8 @@ def get_summary_sheet(submission, sheet):
         Builds the first sheet of an exported report that
         has the summary of the submission
     """
+
+
     boldFont = xlwt.Font()
     boldFont.bold = True
     boldStyle = xlwt.XFStyle()
@@ -21,6 +23,7 @@ def get_summary_sheet(submission, sheet):
 
     r, c = 0, 0
     min_width = get_width(len(submission.institution.name))
+
 
     sheet.write_merge(r, r, c, c + 1, submission.institution.name, boldStyle)
     r += 1
@@ -60,14 +63,17 @@ def get_summary_sheet(submission, sheet):
     sheet.col(3).width = (256 * 40)
 
     if submission.rating:
-        rating_png = submission.rating.image_large.name
-        img = Image.open(rating_png)
-        red, g, b, __a = img.split()
-        img = Image.merge("RGB", (red, g, b))
-        rating_bmp = NamedTemporaryFile(suffix='.bmp')
-        img.thumbnail([256, 256], Image.ANTIALIAS)
-        img.save(rating_bmp.name)
-        sheet.insert_bitmap(rating_bmp.name, 1, 3)
+        try:
+            rating_png = submission.rating.image_large.name
+            img = Image.open(rating_png)
+            red, g, b, __a = img.split()
+            img = Image.merge("RGB", (red, g, b))
+            rating_bmp = NamedTemporaryFile(suffix='.bmp')
+            img.thumbnail([256, 256], Image.ANTIALIAS)
+            img.save(rating_bmp.name)
+            sheet.insert_bitmap(rating_bmp.name, 1, 3)
+        except:
+            pass
 
 
 def build_category_summary_sheet(category, sheet):
@@ -199,14 +205,17 @@ def build_report_export(submission):
     """
         Builds the excel workbook for a specific submission
     """
-    print "STARTING EXCEL EXPORT"
+    print "STARTING EXCEL EXPORT %d" % submission.id
     wb = xlwt.Workbook(encoding="UTF-8")
 
     # Summary
+    print "SUMMARY SHEET"
     summary_sheet = wb.add_sheet('Summary')
     get_summary_sheet(submission, summary_sheet)
 
     # Categories
+
+    print "CATEGORIES"
     for category in submission.categorysubmission_set.all():
         sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
         build_category_summary_sheet(category, sheet)
@@ -214,12 +223,15 @@ def build_report_export(submission):
         build_category_data_sheet(
             category, sheet, submission.institution.prefers_metric_system)
 
+    print "TEMP FILE"
 #     filename = "%s.xls" % slugify("%s" % submission)
     tempfile = NamedTemporaryFile(suffix='.xls', delete=False)
 #     filename = "report_export.xls"
 
     print tempfile.name
     wb.save(tempfile.name)
+
+    print "FINISHED EXCEL EXPORT %d" % submission.id
     return tempfile.name
 
 # from stars.apps.submissions.models import SubmissionSet
