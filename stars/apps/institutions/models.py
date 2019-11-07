@@ -403,25 +403,20 @@ class Institution(models.Model):
         submission set """
         return self.submissionset_set.count() > 1
 
-    def get_submissions(self, include_unrated=False):
-        """ Return the institutions SubmissionSets, reverse chron.,
-        perhaps excluding the unrated ones """
-        submissions = self.submissionset_set.all()
-        if not include_unrated:  # include only rated submissions
-            submissions = submissions.filter(
-                status='r').filter(
-                is_visible=True).filter(
-                is_locked=False)
-        return submissions.order_by("-date_registered")
-
     def get_latest_submission(self, include_unrated=False):
-        """ Return the institutions most recent SubmissionSet,
-        perhaps excluding the unrated ones """
-        try:
-            return self.get_submissions(
-                include_unrated).order_by("-date_submitted")[0]
-        except:
-            return None
+        return self.submissionset_set.filter(
+            is_visible=True).filter(
+                is_locked=False).order_by(
+                    '-date_registered')[0]
+
+    def get_latest_rated_submission(self):
+        """ Returns the most recent rated SubmissionSet for this
+        institution """
+        return self.submissionset_set.filter(
+            status='r').filter(
+                is_visible=True).filter(
+                    is_locked=False).order_by(
+                        '-date_submitted')[0]
 
     def get_location_string(self):
         """Returns a string specifying the location of this institution."""
@@ -454,13 +449,6 @@ class Institution(models.Model):
         """ Set this institution's active SubmissionSet """
         self.current_submission = submission_set
         self.save()
-
-    def get_latest_rated_submission(self):
-        """ Returns the most recent rated SubmissionSet for this
-        institution """
-        if self.submissionset_set.filter(status='r').count() > 0:
-            return self.submissionset_set.filter(
-                status='r').order_by('-date_submitted')[0]
 
     def is_registered(self, creditset=None):
         """ Return True if this institution is registered for the given

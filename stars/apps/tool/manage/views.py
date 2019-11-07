@@ -427,7 +427,7 @@ class ShareDataView(InstitutionAdminToolMixin,
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
             institution)
         context['latest_report'] = (
-            institution.get_latest_submission())
+            institution.get_latest_rated_submission())
         return context
 
 
