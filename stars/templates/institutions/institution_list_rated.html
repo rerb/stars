@@ -62,7 +62,9 @@
                    id='scorecard-list'>
                     {{ institution }}
                 </a>
-                {% include "institutions/inst_property_icons.html" %}
+                {% if institution.is_member %}
+                  <sup class='symbol' title='AASHE Member'>m</sup>
+                {% endif %}
             </td>
             <td>
               {{ institution.rated_submission.creditset.version }}

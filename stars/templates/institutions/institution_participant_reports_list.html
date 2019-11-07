@@ -61,7 +61,9 @@
               {% else %}
                 {{ institution.name }}
               {% endif %}
-              {% include "institutions/inst_property_icons.html" %}
+              {% if institution.is_member %}
+                <sup class='symbol' title='AASHE Member'>m</sup>
+              {% endif %}
             </td>
             <td class="span3">
               {{ institution.country }}
