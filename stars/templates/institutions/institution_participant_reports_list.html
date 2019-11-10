@@ -52,45 +52,47 @@
       <tbody>
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
-            <td style='text-align: left' class="span4">
-              {% if institution.rated_submission %}
-                <a href="{% url 'institutions:scorecard-list' institution.slug %}"
-                   id='scorecard-list'>
+            {% with latest_rated_submission = institution.get_latest_rated_submission %}
+              <td style='text-align: left' class="span4">
+                {% if latest_rated_submission %}
+                  <a href="{% url 'institutions:scorecard-list' institution.slug %}"
+                     id='scorecard-list'>
+                    {{ institution.name }}
+                  </a>
+                {% else %}
                   {{ institution.name }}
-                </a>
+                {% endif %}
+                {% if institution.is_member %}
+                  <sup class='symbol' title='AASHE Member'>m</sup>
+                {% endif %}
+              </td>
+              <td class="span3">
+                {{ institution.country }}
+                {% if institution.ms_institution.state %}
+                  , {{ institution.ms_institution.state }}
+                {% endif %}
+              </td>
+              {% if latest_rated_submission %}
+                  <td class="span1">
+                    {{ latest_rated_submission.creditset.version }}
+                  </td>
+                  <td class="span2">
+                  {{ latest_rated_submission.rating }}
+                  {% if latest_rated_submission.expired %}
+                      *
+                      {% endif %}
+                  </td>
+                  <td class="span2">
+                      <a href="{% url 'institutions:scorecard-summary' institution.slug latest_rated_submission.date_submitted %}">
+                        {{ latest_rated_submission.date_submitted }}
+                      </a>
+                  </td>
               {% else %}
-                {{ institution.name }}
+                  <td class="span1"></td>
+                  <td class="span2"></td>
+                  <td class="span2"></td>
               {% endif %}
-              {% if institution.is_member %}
-                <sup class='symbol' title='AASHE Member'>m</sup>
-              {% endif %}
-            </td>
-            <td class="span3">
-              {{ institution.country }}
-              {% if institution.ms_institution.state %}
-                , {{ institution.ms_institution.state }}
-              {% endif %}
-            </td>
-            {% if institution.rated_submission %}
-                <td class="span1">
-                  {{ institution.rated_submission.creditset.version }}
-                </td>
-                <td class="span2">
-                {{ institution.rated_submission.rating }}
-                {% if institution.older_than_three_years %}
-                    *
-	            {% endif %}
-                </td>
-                <td class="span2">
-                    <a href="{% url 'institutions:scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
-                      {{ institution.rated_submission.date_submitted }}
-                    </a>
-                </td>
-            {% else %}
-                <td class="span1"></td>
-                <td class="span2"></td>
-                <td class="span2"></td>
-            {% endif %}
+            {% endwith %}
           </tr>
         {% endfor %}
       </tbody>

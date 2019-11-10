@@ -1,26 +1,24 @@
+import math
 import os
 import re
 import sys
 from datetime import date, datetime, timedelta
 from logging import getLogger
-import hashlib
-import math
+
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
-from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
 from django.core.files.temp import NamedTemporaryFile
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_init, pre_delete
 from django.dispatch import receiver
-from django.utils.http import urlquote
+from localflavor.us.models import PhoneNumberField
 
 from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
                                        Credit, CreditSet, DocumentationField,
@@ -2379,6 +2377,7 @@ class ChoiceSubmission(AbstractChoiceSubmission):
     """
     value = models.ForeignKey(Choice, blank=True, null=True)
 
+    # wtf is this doing?  it's verbatim from base class.
     def get_value(self):
         """ Value is a Choice object, or None """
         return self.value
@@ -2615,11 +2614,13 @@ class NumericSubmission(DocumentationFieldSubmission):
             field to the other.
 
             This is handled with two methods:
-                `requires_duplication` - uses the documentation field
+                1. `requires_duplication` - uses the documentation field
                         - `DocumentationField` has a `units` and
                         - the `metric_units` and `us_units` are not the same
                             (MMBTU is metric, but used the US too)
-                `use_metric` - uses institution preference
+                2. `use_metric` - uses institution preference
+
+    2019-10-30: why not just always behave as if duplication were required?
 
             Model:
                 The model will save both fields when the other could be needed
@@ -2665,6 +2666,12 @@ class NumericSubmission(DocumentationFieldSubmission):
     @property
     def init_track_fields(self):
         return ['value']
+
+    def get_value(self, units):
+        if self.use_metric():
+            return self.metric_value
+        else:
+            return self.value
 
     def requires_duplication(self):
         """

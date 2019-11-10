@@ -5,7 +5,6 @@ from logging import getLogger
 
 from celery import shared_task
 from celery.decorators import task
-from django.core.cache import cache
 
 from stars.apps.credits.models import CreditSet, Subcategory
 from stars.apps.institutions.models import Institution, MigrationHistory

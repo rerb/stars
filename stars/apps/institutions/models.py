@@ -218,8 +218,7 @@ class Institution(models.Model):
         from stars.apps.submissions.models import REVIEW_SUBMISSION_STATUS
         # Folks with a report in review mode always get full access.
         submission = self.current_submission
-        if (submission and
-            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
+        if (submission and (submission.status == REVIEW_SUBMISSION_STATUS)):
 
             return True
 
@@ -249,8 +248,7 @@ class Institution(models.Model):
 
         submission = self.current_submission
 
-        if (submission and
-            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
+        if (submission and (submission.status == REVIEW_SUBMISSION_STATUS)):
 
             # Everybody gets full access while their submission
             # is in review mode.
@@ -262,14 +260,6 @@ class Institution(models.Model):
         else:
             return Subscription.BASIC_ACCESS
 
-    def older_than_three_years(self):
-        try:
-            return (date.today() > (self.rated_submission.date_submitted +
-                                    relativedelta(years=3)))
-        except AttributeError:
-            return False
-        return True
-
     def get_relative_rating(self):
         """New ratings aren't always considered an Insitution's 'current'
         rating.  A 'Reporter' rating, for instance, shouldn't obscure
@@ -279,15 +269,13 @@ class Institution(models.Model):
         # Import in here to avoid circular dependency.
         from stars.apps.submissions.models import RATING_VALID_PERIOD
 
-        if (self.current_rating and
-            self.current_rating.name == "Reporter"):  # noqa
+        if (self.current_rating and self.current_rating.name == "Reporter"):
             # Is there another public, rated submission for this
             # Institution with a current, non-reporter rating?
             other_submissions = self.submissionset_set.filter(
                 rating__publish_score=True,
                 date_submitted__gte=(
-                    date.today() -
-                    RATING_VALID_PERIOD)).exclude(
+                    date.today() - RATING_VALID_PERIOD)).exclude(
                         rating__name="Reporter").order_by(
                             "-date_submitted")
             if other_submissions:
@@ -407,7 +395,7 @@ class Institution(models.Model):
         return self.submissionset_set.filter(
             is_visible=True).filter(
                 is_locked=False).order_by(
-                    '-date_registered')[0]
+                    '-date_registered').first()
 
     def get_latest_rated_submission(self):
         """ Returns the most recent rated SubmissionSet for this
@@ -416,7 +404,7 @@ class Institution(models.Model):
             status='r').filter(
                 is_visible=True).filter(
                     is_locked=False).order_by(
-                        '-date_submitted')[0]
+                        '-date_submitted').first()
 
     def get_location_string(self):
         """Returns a string specifying the location of this institution."""

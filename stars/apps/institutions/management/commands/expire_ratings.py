@@ -43,7 +43,7 @@ def expire_ratings():
             if institution.rated_submission == submissionset:
                 logger.info("**Only Rating (dropping current rating)")
                 # This line is affecting the participants and reports table
-                # institution.rated_submission = None
+                institution.rated_submission = None
                 institution.current_rating = None
 
             institution.save()
