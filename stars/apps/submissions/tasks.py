@@ -16,7 +16,7 @@ from stars.apps.submissions.api import (CategoryPieChart, SubategoryPieChart,
                                         SummaryPieChart)
 from stars.apps.submissions.export.excel import build_report_export
 from stars.apps.submissions.export.pdf import build_certificate_pdf
-from stars.apps.submissions.models import SubcategoryQuartiles
+from stars.apps.submissions.models import SubmissionSet, SubcategoryQuartiles
 
 logger = getLogger()
 
@@ -28,19 +28,22 @@ def hello_world():
 
 
 @task()
-def build_pdf_export(ss):
+def build_pdf_export(id):
     # returns the name of the exported file.
-    logger.info("starting pdf export(ss: %d)" % ss.id)
+    logger.info("starting pdf export(ss: %d)" % id)
+    ss = SubmissionSet.objects.get(pk=id)
     pdf = ss.get_pdf()
-    logger.info("pdf export done(ss: %d)" % ss.id)
+    logger.info("pdf export done(ss: %d)" % id)
+    print pdf.name
     return pdf.name
 
 
 @task()
-def build_excel_export(ss):
-    logger.info("starting excel export(ss: %d)" % ss.id)
+def build_excel_export(id):
+    ss = SubmissionSet.objects.get(pk=id)
+    logger.info("starting excel export(ss: %d)" % id)
     report = build_report_export(ss)
-    logger.info("excel export done(ss: %d)" % ss.id)
+    logger.info("excel export done(ss: %d)" % id)
     return report
 
 
@@ -50,17 +53,18 @@ def take_snapshot_task(ss, user):
     ss.take_snapshot(user=user)
     logger.info("snapshot completed: (%d) %s" % (ss.id, ss))
 
-
 @task()
-def build_certificate_export(ss):
-    logger.info("starting certificate export(ss: %d)" % ss.id)
-    # cert_pdf = build_certificate_pdf(ss)
+def build_certificate_export(id):
+    logger.info("starting certificate export(ss: %d)" % id)
+    ss = SubmissionSet.objects.get(pk=id)
     pdf = build_certificate_pdf(ss)
+    logger.info('cert build successful')
     from django.core.files.temp import NamedTemporaryFile
     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-    tempfile.write(pdf.getvalue())
+    pdf.write_pdf(target=tempfile)
     tempfile.close()
     logger.info("cert export done(ss: %d)" % ss.id)
+    logger.info(tempfile.name)
     return tempfile.name
 
 
