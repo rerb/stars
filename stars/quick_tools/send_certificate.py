@@ -15,4 +15,4 @@ ss = SubmissionSet.objects.get(pk=int(ss_id))
 
 print >> sys.stdout, ss
 print >> sys.stdout, "%s - %s" % (ss.date_submitted, ss.rating)
-send_certificate_pdf.delay(ss)
+send_certificate_pdf.delay(ss.id)

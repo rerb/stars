@@ -5,6 +5,7 @@ from logging import getLogger
 
 from celery import shared_task
 from celery.decorators import task
+from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from stars.apps.credits.models import CreditSet, Subcategory
@@ -69,7 +70,10 @@ def build_certificate_export(id):
 
 
 @task()
-def send_certificate_pdf(ss):
+def send_certificate_pdf(id):
+
+    logger.info("starting to send certificate (ss: %d)" % id)
+    ss = SubmissionSet.objects.get(pk=id)
 
     pdf = build_certificate_pdf(ss)
 
@@ -84,11 +88,12 @@ def send_certificate_pdf(ss):
 
 
 @task()
-def send_email_with_certificate_attachment(submissionset,
+def send_email_with_certificate_attachment(ss_id,
                                            email_template,
                                            email_context,
                                            recipients):
 
+    ss = SubmissionSet.objects.get(pk=ss_id)
     certificate = build_certificate_pdf(submissionset)
 
     email_template.send_email(
@@ -100,13 +105,21 @@ def send_email_with_certificate_attachment(submissionset,
 
 
 @task()
-def perform_migration(old_ss, new_cs, user_email):
+def perform_migration(old_ss_id, new_cs_id, user_email):
     """
         Run the migration and then
         email the Liaison, copying the user
         (if the emails are different)
     """
-    logger = getLogger('stars.user')
+    # logger = getLogger('stars.user')
+
+
+    logger.info("Running migration for %d to %s" % (old_ss_id, new_cs_id))
+
+    old_ss = SubmissionSet.objects.get(pk=old_ss_id)
+    new_cs = CreditSet.objects.get(pk=new_cs_id)
+
+    logger.info("Running migration for %d to %s" % (old_ss_id, new_cs))
 
     new_ss = migrate_ss_version(old_ss, new_cs)
 
@@ -128,19 +141,30 @@ def perform_migration(old_ss, new_cs, user_email):
                           target_ss=new_ss)
     mh.save()
 
+    logger.info("Done migration for %d to %s" % (old_ss_id, new_cs_id))
+
 
 @task()
-def perform_data_migration(old_ss, req):
+def perform_data_migration(old_ss_id, user_id):
     """
         Just duplicates a submission and archives the old one
 
         A data migration pulls in data but doesn't use the latest creditset,
         it simply keeps the current creditset.
     """
+    old_ss = SubmissionSet.objects.get(pk=old_ss_id)
+
+    logger.info("Running data migration for %d to %s" % (old_ss_id))
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except:
+        user = None
+
     new_ss = create_ss_mirror(
         old_submissionset=old_ss,
         new_creditset=old_ss.institution.current_submission.creditset,
-        registering_user=req.user)
+        registering_user=user)
     new_ss.is_locked = False
     new_ss.save()
 
@@ -153,31 +177,42 @@ def perform_data_migration(old_ss, req):
     mh.save()
 
 
+# No longer seems to be used
+# @task()
+# def migrate_purchased_submission(old_ss_id, new_ss_id):
+#     """
+#         Hide the submission, move the data from the old_ss
+#         and then unhide it
+#     """
+
+#     old_ss = SubmissionSet.objects.get(pk=old_ss_id)
+#     new_cs = CreditSet.objects.get(pk=new_cs_id)
+
+#     new_ss.is_visible = False
+#     new_ss.is_locked = True
+#     new_ss.save()
+
+#     migrate_submission(old_ss, new_ss)
+
+#     new_ss.is_visible = True
+#     new_ss.is_locked = False
+#     new_ss.save()
+
+
 @task()
-def migrate_purchased_submission(old_ss, new_ss):
-    """
-        Hide the submission, move the data from the old_ss
-        and then unhide it
-    """
-    new_ss.is_visible = False
-    new_ss.is_locked = True
-    new_ss.save()
+def rollover_submission(old_ss_id):
+    logger.info("Running Rollover for %d" % old_ss_id)
+    old_ss = SubmissionSet.objects.get(pk=old_ss_id)
 
-    migrate_submission(old_ss, new_ss)
-
-    new_ss.is_visible = True
-    new_ss.is_locked = False
-    new_ss.save()
-
-
-@task()
-def rollover_submission(old_ss):
+    logger.info("Creating mirror for %d" % old_ss_id)
     new_ss = create_ss_mirror(old_ss)
     new_ss.is_locked = False
     new_ss.is_visible = True
     new_ss.save()
     new_ss.institution.current_submission = new_ss
     new_ss.institution.save()
+
+    logger.info("Done rollover for %d" % old_ss_id)
 
 
 def update_pie_api_cache():

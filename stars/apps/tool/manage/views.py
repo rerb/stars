@@ -445,7 +445,7 @@ class SnapshotPDFExportView(StartExportView,
 
     def get_task_params(self):
         return self.get_institution().submissionset_set.get(
-            pk=self.kwargs['submissionset'])
+            pk=self.kwargs['submissionset']).id
 
 
 class SnapshotPDFDownloadView(DownloadExportView,
@@ -583,9 +583,13 @@ class MigrateDataView(InstitutionAdminToolMixin,
         # if user hasn't checked the magic box:
         if not form.cleaned_data['is_locked']:
             return self.form_invalid(form)
+        try:
+            user_id = self.request.user.id
+        except:
+            user_id = None
         # otherwise, start a migration task
-        perform_data_migration.delay(self._get_old_submission(),
-                                     self.request)
+        perform_data_migration.delay(self._get_old_submission().id,
+                                     user_id)
         return super(MigrateDataView, self).form_valid(form)
 
 
@@ -628,7 +632,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
             return self.form_invalid(form)
         # . . . otherwise, start a migration task
         perform_migration.delay(
-            old_ss=self.get_institution().current_submission,
-            new_cs=CreditSet.objects.get_latest(),
+            old_ss_id=self.get_institution().current_submission.id,
+            new_cs_id=CreditSet.objects.get_latest().id,
             user_email=self.request.user.email)
         return super(MigrateVersionView, self).form_valid(form)
