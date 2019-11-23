@@ -44,6 +44,17 @@ urlpatterns = [
     url(r'^excel/download/(?P<task>[^/]+)/$',
         never_cache(ExcelDownloadView.as_view())),
 
+    # Exports can also be triggered during submition
+    # duplication due to unnamed expressions not yet being supported
+
+    # Export retrieval view
+    url(r'^submit/pdf/download/(?P<task>[^/]+)/$',
+        never_cache(PDFDownloadView.as_view())),
+
+    # Export retrieval view
+    url(r'^submit/excel/download/(?P<task>[^/]+)/$',
+        never_cache(ExcelDownloadView.as_view())),
+
     # Submit a snaphot
     url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
 
