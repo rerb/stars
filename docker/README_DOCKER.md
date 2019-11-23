@@ -33,13 +33,29 @@ There's probably a better way to share the source and static between worker and 
 
 Visit: http://localhost:8000/tool/
 
-### Connecting to the shell
+## Tips
+
+### Connecting to the Django shell
 
 ```
 docker-compose exec web python manage.py shell
 ```
 
 Swap `web` for `worker` if you're trying to connect to that container.
+
+### Connecting to /bin/sh
+
+```
+docker-compose exec web sh
+```
+
+### Importing the database manually
+
+```
+mysql stars -h 127.0.0.1 -P 3306 -u root -p < path/to/your/db/file.sql
+```
+
+Password in this dev docker config is `123456`.
 
 ## Notes
 
