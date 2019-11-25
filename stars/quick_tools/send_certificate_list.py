@@ -16,5 +16,5 @@ settings.CELERY_ALWAYS_EAGER = True
 for ss in ss_list:
     print >> sys.stdout, ss
     print >> sys.stdout, "%s - %s" % (ss.date_submitted, ss.rating)
-    send_certificate_pdf.delay(ss)
+    send_certificate_pdf.delay(ss.id)
 #     print >> sys.stdout, "Done"

@@ -74,6 +74,9 @@ STATICFILES_DIRS = [
     os.path.join(os.path.dirname(__file__), "..", "static"),
 ]
 
+print "STATIC FILES"
+print STATICFILES_DIRS
+
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -261,8 +264,8 @@ CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
 # CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
 #                                      "sqlite:///tmp/stars-celery-results.db")
 CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'django-cache')
-CELERY_TASK_SERIALIZER = 'pickle'
-CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
+CELERY_TASK_SERIALIZER = 'json' # @todo - should move to Json
+CELERY_ACCEPT_CONTENT = ['json']
 
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
@@ -282,7 +285,6 @@ if m:
     PYTHON_VERSION = m.group(0)
 
 DJANGO_VERSION = django.get_version()
-HG_REVISION = None
 
 # Sentry Logging: getsentry.com
 RAVEN_CONFIG = {
@@ -467,10 +469,6 @@ MESSAGE_TAGS = {
     messages.WARNING: 'alert fade in alert-warning',
     messages.ERROR: 'alert fade in alert-error'
 }
-
-if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
-    from hg_info import revision
-    HG_REVISION = revision
 
 # django debug toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)

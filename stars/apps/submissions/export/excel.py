@@ -2,6 +2,8 @@ import xlwt
 from django.core.files.temp import NamedTemporaryFile
 from PIL import Image
 
+from utils import getRatingImage
+
 from stars.apps.submissions.models import NOT_APPLICABLE
 
 
@@ -62,17 +64,23 @@ def get_summary_sheet(submission, sheet):
     sheet.col(2).width = 1000
     sheet.col(3).width = (256 * 40)
 
+    print "adding image?"
     if submission.rating:
+        rating_png = getRatingImage(submission.rating)
+
+        print "yes, adding image %s" % rating_png
         try:
-            rating_png = submission.rating.image_large.name
             img = Image.open(rating_png)
             red, g, b, __a = img.split()
             img = Image.merge("RGB", (red, g, b))
-            rating_bmp = NamedTemporaryFile(suffix='.bmp')
+            rating_bmp = NamedTemporaryFile(suffix='.bmp', delete=False)
             img.thumbnail([256, 256], Image.ANTIALIAS)
             img.save(rating_bmp.name)
             sheet.insert_bitmap(rating_bmp.name, 1, 3)
-        except:
+            print "Bitmap: %s" % rating_bmp.name
+        except Exception as e:
+            print "EXCEPTION: %s" % e
+            print "FAILED TO RENDER FIRST SHEET: %s" % rating_png
             pass
 
 
