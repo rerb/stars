@@ -305,9 +305,6 @@ class SubmissionSet(models.Model):
         return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(),
                                          self.id)
 
-    def get_add_payment_url(self):
-        return "%sadd-payment/" % self.get_admin_url()
-
     def get_manage_url(self):
         return urlresolvers.reverse(
             'tool:my_submission:submission-summary',
