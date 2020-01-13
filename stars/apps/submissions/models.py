@@ -1454,14 +1454,17 @@ class CreditSubmission(models.Model):
         return [field.get_value() for field
                 in self.get_submission_fields()]
 
-    def get_submission_field_key(self):
+    def get_submission_field_key(self, metric = False):
         """ Returns a dictionary with identifier:value for each submission
             field
         """
         fields = self.get_submission_fields()
         key = {}
         for field in fields:
-            key[field.documentation_field.identifier] = field.get_value()
+            value = field.get_value()
+            if field.__class__ == NumericSubmission:
+                value = field.value if not metric else field.metric_value
+            key[field.documentation_field.identifier] = value
         return key
 
     def print_submission_fields(self):
@@ -2691,22 +2694,26 @@ class NumericSubmission(DocumentationFieldSubmission):
         return False
 
     def calculate(self, log_exceptions=True):
-        """Calculate self.documentation_field.formula.
-
+        """
+        Calculate self.documentation_field.formula.
         """
         if not self.documentation_field.formula:
             self.value = None
             return
 
         # get the key that relates field identifiers to their values
-        field_key = self.credit_submission.get_submission_field_key()
+        imperial_field_key = self.credit_submission.get_submission_field_key()
+        metric_field_key = self.credit_submission.get_submission_field_key(metric=True)
         value = 0
         # exec formula in restricted namespace
         globals = {}  # __builtins__ gets added automatically
-        locals = {"value": value}
-        locals.update(field_key)
+        imperial_locals = {"value": value}
+        imperial_locals.update(imperial_field_key)
+        metric_locals = {"value": value}
+        metric_locals.update(metric_field_key)
         try:
-            exec self.documentation_field.formula in globals, locals
+            exec self.documentation_field.formula in globals, imperial_locals
+            exec self.documentation_field.formula in globals, metric_locals
         # Assertions may be used in formula for extra validation -
         # assume assertion text is intended for user
         except AssertionError:
@@ -2726,15 +2733,10 @@ class NumericSubmission(DocumentationFieldSubmission):
                                 if (type(value) in (int, float) or
                                     value is None)}))
             self.value = None
+            self.metric_value = None
         else:
-            self.value = locals['value']
-
-        if (self.requires_duplication() and
-            self.use_metric() and
-            self.value):  # NOQA
-
-            units = self.documentation_field.us_units
-            self.metric_value = units.convert(self.value)
+            self.value = imperial_locals['value']
+            self.metric_value = metric_locals['value']
 
     def save(self,
              recalculate_related_calculated_fields=True,
@@ -2745,6 +2747,7 @@ class NumericSubmission(DocumentationFieldSubmission):
                 1. generate the metric value, and
                 2. recalculate any related calculated fields, when neccesary.
         """
+
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
