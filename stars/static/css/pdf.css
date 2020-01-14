@@ -48,12 +48,13 @@ h3 {
 }
 
 div.seals {
-        padding-top: 5cm;
+        padding-top: 4cm;
         text-align: center;
 }
 
 table.submissionSummary {
-        margin: 1cm 0cm;
+        width: 100%;
+        margin: 1cm 0;
 }
 
 table.submissionSummary td, table.submissionSummary th {
@@ -105,6 +106,11 @@ tr.oddRow, tr.evenRow {
     vertical-align: middle;
     /* line-height: 1.2; */
     /* padding: 4px 0px 4px 0px;  */
+}
+
+tr.oddRow {
+        background-color: #eee;
+        color: red;
 }
 
 .disclaimer {
@@ -165,8 +171,8 @@ div.greyBox p {
 
 table.scoreTable {
         border: 0px;
-        margin: 0px auto;
-        width: 50%;
+        margin: 0px;
+        width: 100%;
 }
 
 table.scoreTable th, table.scoreTable td {
@@ -179,6 +185,10 @@ table.horizontal th, table.horizontal td {
 
 table.vertical th {
         text-align: right;
+}
+
+table.tableOfContents {
+        width: 100%;
 }
 
 div.note {

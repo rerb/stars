@@ -19,3 +19,6 @@ stellar.yaml
 export.zip
 .ignore
 *.ipynb
+
+docker/docker-entrypoint-initdb.d/*.sql
+.env.*

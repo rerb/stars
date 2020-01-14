@@ -376,7 +376,7 @@ class ApproveSubmissionView(SubmissionToolMixin,
         institution.save()
 
         # Update their current submission.
-        rollover_submission.delay(submissionset)
+        rollover_submission.delay(submissionset.id)
 
         # If there are any CreditUserSubmissions for this SubmissionSet
         # that still have is_unlocked_for_review set to True, reset them.
