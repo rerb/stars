@@ -499,9 +499,6 @@ if 'test' in sys.argv:
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))
-    DATABASES['default'] = dj_database_url.parse(
-        os.environ.get('ISS_TEST_DB',
-                       "sqlite:////tmp/iss_tests.db"))
 
     CACHES = {
         'default': django_cache_url.parse(
