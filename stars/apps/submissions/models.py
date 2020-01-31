@@ -2696,29 +2696,13 @@ class NumericSubmission(DocumentationFieldSubmission):
             return institution.prefers_metric_system
         return False
 
-    def calculate(self, log_exceptions=True):
-        """
-        Calculate self.documentation_field.formula.
-        """
-        if not self.documentation_field.formula:
-            self.value = None
-            return
+    def run_formula(self, locals, log_exceptions=True):
 
-        # get the key that relates field identifiers to their values
-        imperial_field_key = self.credit_submission.get_submission_field_key()
-        metric_field_key = self.credit_submission.get_submission_field_key(metric=True)
-        value = 0
-        # exec formula in restricted namespace
         globals = {}  # __builtins__ gets added automatically
-        imperial_locals = {"value": value}
-        imperial_locals.update(imperial_field_key)
-        metric_locals = {"value": value}
-        metric_locals.update(metric_field_key)
+
+        # exec formula in restricted namespace
         try:
-            exec self.documentation_field.formula in globals, imperial_locals
-            exec self.documentation_field.formula in globals, metric_locals
-        # Assertions may be used in formula for extra validation -
-        # assume assertion text is intended for user
+            exec self.documentation_field.formula in globals, locals
         except AssertionError:
             raise
         except Exception, exc:
@@ -2735,11 +2719,27 @@ class NumericSubmission(DocumentationFieldSubmission):
                         locals={key: value for key, value in locals.items()
                                 if (type(value) in (int, float) or
                                     value is None)}))
+            return None
+        return locals['value']
+
+    def calculate(self, log_exceptions=True):
+        """
+        Calculate self.documentation_field.formula.
+        """
+        if not self.documentation_field.formula:
             self.value = None
-            self.metric_value = None
-        else:
-            self.value = imperial_locals['value']
-            self.metric_value = metric_locals['value']
+            return
+
+        # get the key that relates field identifiers to their values
+        imperial_locals = self.credit_submission.get_submission_field_key()
+        imperial_locals.update({"value": None})
+        self.value = self.run_formula(imperial_locals, log_exceptions=True)
+
+        if self.requires_duplication():
+            metric_locals = self.credit_submission.get_submission_field_key(metric=True)
+            metric_locals.update({"value": None})
+            self.metric_value = self.run_formula(imperial_locals, log_exceptions=True)
+
 
     def save(self,
              recalculate_related_calculated_fields=True,
