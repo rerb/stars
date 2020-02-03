@@ -157,7 +157,7 @@ AUTH_USER_MODEL = 'auth.User'
 
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = 'logout'
-LOGIN_REDIRECT_URL = 'tool-landing-page'
+LOGIN_REDIRECT_URL = 'tool:tool-landing-page'
 ADMIN_URL = "/tool/admin/"
 MANAGE_INSTITUTION_URL = "/tool/"
 
