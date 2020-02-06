@@ -26,9 +26,6 @@ class LocalizedModelFormMixin(ModelForm):
     """
     LOCALIZED_FIELD_TYPES = (fields.DateField,
                              fields.DateTimeField,
-                             fields.DecimalField,
-                             fields.FloatField,
-                             fields.IntegerField,
                              fields.TimeField)
 
     def __new__(cls, *args, **kwargs):
