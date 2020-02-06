@@ -26,13 +26,23 @@ class LocalizedModelFormMixin(ModelForm):
     """
     LOCALIZED_FIELD_TYPES = (fields.DateField,
                              fields.DateTimeField,
+                             fields.DecimalField,
+                             fields.FloatField,
+                             fields.IntegerField,
                              fields.TimeField)
+    NUMBER_TYPES = (fields.FloatField, fields.IntegerField)
 
     def __new__(cls, *args, **kwargs):
         new_class = super(LocalizedModelFormMixin, cls).__new__(cls, *args,
                                                                 **kwargs)
-        for field in new_class.base_fields.values():
+        for field_name, field in new_class.base_fields.items():
             if isinstance(field, cls.LOCALIZED_FIELD_TYPES):
                 field.localize = True
                 field.widget.is_localized = True
+                if isinstance(field, cls.NUMBER_TYPES):
+                    widget = widgets.TextInput()
+                    extra_attrs = field.widget_attrs(widget)
+                    if extra_attrs:
+                        widget.attrs.update(extra_attrs)
+                    field.widget = widget
         return new_class
