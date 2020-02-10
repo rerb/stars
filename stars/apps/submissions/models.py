@@ -1734,6 +1734,9 @@ class CreditUserSubmission(CreditSubmission):
 
     def save(self, calculate_points=True, *args, **kwargs):
         self.last_updated = datetime.now()
+        
+        if not self.submission_fields:
+            return super(CreditUserSubmission, self).save(*args, **kwargs)
 
         if calculate_points:
             self.assessed_points = float(self._calculate_points())
