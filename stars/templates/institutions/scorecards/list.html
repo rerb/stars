@@ -46,7 +46,7 @@
                               {% if not ss.expired %}
                                 {{ ss.rating }}
                               {% else %}
-                                Expired
+                                {{ ss.rating }} - expired
                               {% endif %}
                             {% else %}
                                 Not Rated
@@ -54,15 +54,10 @@
                         </td>
                     </tr>
                 {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        </div>
-
-
-
-
+            </tbody>
+        </table>
+    </div>
+    </div>
 
     <script>
         jQuery( function($) {

@@ -17,6 +17,6 @@ for i in qs.order_by("name"):
     if i.current_submission.creditset.version != "2.1":
         print i.current_submission
         count += 1
-        perform_migration.delay(i.current_submission, cs2_1, user)
+        perform_migration.delay(i.current_submission.id, cs2_1.id, user.email)
 
 print "Queued: %d" % count

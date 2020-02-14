@@ -505,7 +505,7 @@ class ExcelExportView(ExportRules,
     url_prefix = "excel/"
 
     def get_task_params(self):
-        return self.get_submissionset()
+        return self.get_submissionset().id
 
 
 class ExcelDownloadView(ExportRules,
@@ -531,7 +531,7 @@ class PDFExportView(ExportRules,
     url_prefix = "pdf/"
 
     def get_task_params(self):
-        return self.get_submissionset()
+        return self.get_submissionset().id
 
 
 class PDFDownloadView(ExportRules,
@@ -556,7 +556,9 @@ class CertificateExportView(InstitutionStructureMixin,
     url_prefix = "cert/"
 
     def get_task_params(self):
-        return self.get_submissionset()
+        ss = self.get_submissionset()
+        print "Param: %d" % ss.id
+        return ss.id
 
     def get_object_list(self):
         ss_list = super(CertificateExportView, self).get_object_list()

@@ -305,9 +305,6 @@ class SubmissionSet(models.Model):
         return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(),
                                          self.id)
 
-    def get_add_payment_url(self):
-        return "%sadd-payment/" % self.get_admin_url()
-
     def get_manage_url(self):
         return urlresolvers.reverse(
             'tool:my_submission:submission-summary',
@@ -1457,14 +1454,17 @@ class CreditSubmission(models.Model):
         return [field.get_value() for field
                 in self.get_submission_fields()]
 
-    def get_submission_field_key(self):
+    def get_submission_field_key(self, metric = False):
         """ Returns a dictionary with identifier:value for each submission
             field
         """
         fields = self.get_submission_fields()
         key = {}
         for field in fields:
-            key[field.documentation_field.identifier] = field.get_value()
+            value = field.get_value()
+            if field.__class__ == NumericSubmission:
+                value = field.value if not metric else field.metric_value
+            key[field.documentation_field.identifier] = value
         return key
 
     def print_submission_fields(self):
@@ -1734,6 +1734,9 @@ class CreditUserSubmission(CreditSubmission):
 
     def save(self, calculate_points=True, *args, **kwargs):
         self.last_updated = datetime.now()
+        
+        if not self.submission_fields:
+            return super(CreditUserSubmission, self).save(*args, **kwargs)
 
         if calculate_points:
             self.assessed_points = float(self._calculate_points())
@@ -2693,25 +2696,13 @@ class NumericSubmission(DocumentationFieldSubmission):
             return institution.prefers_metric_system
         return False
 
-    def calculate(self, log_exceptions=True):
-        """Calculate self.documentation_field.formula.
+    def run_formula(self, locals, log_exceptions=True):
 
-        """
-        if not self.documentation_field.formula:
-            self.value = None
-            return
-
-        # get the key that relates field identifiers to their values
-        field_key = self.credit_submission.get_submission_field_key()
-        value = 0
-        # exec formula in restricted namespace
         globals = {}  # __builtins__ gets added automatically
-        locals = {"value": value}
-        locals.update(field_key)
+
+        # exec formula in restricted namespace
         try:
             exec self.documentation_field.formula in globals, locals
-        # Assertions may be used in formula for extra validation -
-        # assume assertion text is intended for user
         except AssertionError:
             raise
         except Exception, exc:
@@ -2728,16 +2719,27 @@ class NumericSubmission(DocumentationFieldSubmission):
                         locals={key: value for key, value in locals.items()
                                 if (type(value) in (int, float) or
                                     value is None)}))
+            return None
+        return locals['value']
+
+    def calculate(self, log_exceptions=True):
+        """
+        Calculate self.documentation_field.formula.
+        """
+        if not self.documentation_field.formula:
             self.value = None
-        else:
-            self.value = locals['value']
+            return
 
-        if (self.requires_duplication() and
-            self.use_metric() and
-            self.value):  # NOQA
+        # get the key that relates field identifiers to their values
+        imperial_locals = self.credit_submission.get_submission_field_key()
+        imperial_locals.update({"value": None})
+        self.value = self.run_formula(imperial_locals, log_exceptions=True)
 
-            units = self.documentation_field.us_units
-            self.metric_value = units.convert(self.value)
+        if self.requires_duplication():
+            metric_locals = self.credit_submission.get_submission_field_key(metric=True)
+            metric_locals.update({"value": None})
+            self.metric_value = self.run_formula(imperial_locals, log_exceptions=True)
+
 
     def save(self,
              recalculate_related_calculated_fields=True,
@@ -2748,6 +2750,7 @@ class NumericSubmission(DocumentationFieldSubmission):
                 1. generate the metric value, and
                 2. recalculate any related calculated fields, when neccesary.
         """
+
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
